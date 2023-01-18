@@ -11,29 +11,30 @@ function searchResult() {
   selectplace = place.options[placeIndex].value; //지역 value
 
   fetchData();
+  //이벤트 실행마다 div 내용 초기화
+  contents.innerHTML = "";
 }
 
-//json data fetch 및 사용자 입력값 비교
-function fetchData() {
-  fetch("http://localhost:4000/DATA")
-    .then((response) => response.json())
-    //data json 전체
-    .then((data) => {
-      //newData = 조건에 맞는 요소만 필터링 한 것
-      newData = data.filter(
-        //ele = json객체 1개
-        (ele) => ele.codename == selectCode && ele.guname == selectplace
-      );
-      console.log(newData);
+async function fetchData() {
+  let fetchArr = [];
+  const fetchRes = await fetch("./seoulevent.json");
+  const fetchJson = await fetchRes.json();
+  fetchArr = [...fetchJson.DATA];
+  //newData = 조건에 맞는 요소만 필터링 한 것
+  newData = fetchArr.filter(
+    //ele = json객체 1개
+    (ele) => ele.codename == selectCode && ele.guname == selectplace
+  );
 
-      //조건에맞는 요소 없을시
-      if (newData.length == 0) {
-        contents.innerHTML = ` <img src="/chunsik-cry.gif" alt="" width="100%" height="500px" id="chunsik">`;
-        alert("행사목록이 없습니다!");
-      }
-      //newData 배열 각각의 요소 화면 출력
-      newData.forEach((info) => {
-        const content = `
+  //조건에맞는 요소 없을시
+  if (newData.length == 0) {
+    contents.innerHTML = ` <img src="/chunsik-cry.gif" alt="" width="100%" height="500px" id="chunsik">`;
+    alert("행사목록이 없습니다!");
+  }
+  //newData 배열 각각의 요소 화면 출력
+  newData.forEach((info) => {
+    console.log(info);
+    const content = `
         <div class="info">
         <img src="${info.main_img}" alt="" width="230px" height="200px" class="img">
         <div class="title">${info.title}</div>
@@ -43,10 +44,6 @@ function fetchData() {
           <a href="${info.org_link}" target="_blank">홈페이지 바로가기</a>
           </div>
           `;
-        contents.innerHTML += content;
-      });
-    })
-    .catch((error) => console.log(error));
-  //이벤트 실행마다 div 내용 초기화
-  contents.innerHTML = "";
+    contents.innerHTML += content;
+  });
 }
